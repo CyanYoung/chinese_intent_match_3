@@ -2,6 +2,8 @@ import os
 
 import re
 
+import pandas as pd
+
 from random import shuffle, sample
 
 from util import load_word_re, load_type_re, load_word_pair, word_replace
@@ -25,13 +27,21 @@ def save_triple(path, triples):
             f.write(text + ',' + pos + ',' + neg + '\n')
 
 
+def extend(triples, path_extra_triple):
+    extra_triples = list()
+    for text, pos, neg in pd.read_csv(path_extra_triple).values:
+        extra_triples.append((text, pos, neg))
+    shuffle(extra_triples)
+    return extra_triples + triples
+
+
 def insert(triples, text, pos_text, neg_texts, neg_fold):
     sub_texts = sample(neg_texts, neg_fold)
     for neg_text in sub_texts:
         triples.append((text, pos_text, neg_text))
 
 
-def make_triple(path_univ_dir, path_train_triple, path_test_triple):
+def make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_triple):
     labels = list()
     label_texts = dict()
     files = os.listdir(path_univ_dir)
@@ -59,7 +69,8 @@ def make_triple(path_univ_dir, path_train_triple, path_test_triple):
                 insert(triples, texts[j], texts[k], res_texts, res_fold)
     shuffle(triples)
     bound = int(len(triples) * 0.9)
-    save_triple(path_train_triple, triples[:bound])
+    train_triples = extend(triples[:bound], path_extra_triple)
+    save_triple(path_train_triple, train_triples)
     save_triple(path_test_triple, triples[bound:])
 
 
@@ -117,4 +128,5 @@ if __name__ == '__main__':
     gather(path_univ_dir, path_train, path_test)
     path_train_triple = 'data/train_triple.csv'
     path_test_triple = 'data/test_triple.csv'
-    make_triple(path_univ_dir, path_train_triple, path_test_triple)
+    path_extra_triple = 'data/extra_triple.csv'
+    make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_triple)
