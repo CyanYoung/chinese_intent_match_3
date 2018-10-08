@@ -2,20 +2,50 @@ import pickle as pk
 
 import numpy as np
 
-from keras.models import load_model
-
 from sklearn.metrics import accuracy_score
+
+from keras.models import Model
+from keras.layers import Input, Embedding
+
+from nn_arch import dnn_build, cnn_build, rnn_build
 
 from match import predict
 
 from util import flat_read, map_item
 
 
+def define_model(name, embed_mat, seq_len):
+    vocab_num, embed_len = embed_mat.shape
+    embed = Embedding(input_dim=vocab_num, output_dim=embed_len,
+                      weights=[embed_mat], input_length=seq_len, trainable=True)
+    input1 = Input(shape=(seq_len,))
+    input2 = Input(shape=(seq_len,))
+    input3 = Input(shape=(seq_len,))
+    embed_input1 = embed(input1)
+    embed_input2 = embed(input2)
+    embed_input3 = embed(input3)
+    func = map_item(name, funcs)
+    output = func(embed_input1, embed_input2, embed_input3)
+    model = Model([input1, input2, input3], output)
+    return model
+
+
+def load_model(name, embed_mat, seq_len):
+    model = define_model(name, embed_mat, seq_len)
+    model.load_weights(map_item(name, paths), by_name=True)
+    return model
+
+
+seq_len = 30
+
 path_test = 'data/test.csv'
 path_label = 'feat/label_test.pkl'
+path_embed = 'feat/embed.pkl'
 texts = flat_read(path_test, 'text')
 with open(path_label, 'rb') as f:
     labels = pk.load(f)
+with open(path_embed, 'rb') as f:
+    embed_mat = pk.load(f)
 
 path_test_pair = 'data/test_pair.csv'
 path_pair = 'feat/pair_train.pkl'
@@ -27,13 +57,17 @@ with open(path_pair, 'rb') as f:
 with open(path_flag, 'rb') as f:
     flags = pk.load(f)
 
+funcs = {'dnn': dnn_build,
+         'cnn': cnn_build,
+         'rnn': rnn_build}
+
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5'}
 
-models = {'dnn': load_model(map_item('dnn', paths)),
-          'cnn': load_model(map_item('cnn', paths)),
-          'rnn': load_model(map_item('rnn', paths))}
+models = {'dnn': load_model('dnn', embed_mat, seq_len),
+          'cnn': load_model('cnn', embed_mat, seq_len),
+          'rnn': load_model('rnn', embed_mat, seq_len)}
 
 
 def test_pair(name, pairs, flags, thre):
