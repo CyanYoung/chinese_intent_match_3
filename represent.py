@@ -36,7 +36,7 @@ def embed(sents, path_word2ind, path_word_vec, path_embed):
         pk.dump(embed_mat, f)
 
 
-def align(sents, path_word2ind):
+def align(sents):
     with open(path_word2ind, 'rb') as f:
         model = pk.load(f)
     seqs = model.texts_to_sequences(sents)
@@ -48,7 +48,7 @@ def vectorize(path_data, path_sent, path_label, mode):
     labels = flat_read(path_data, 'label')
     if mode == 'train':
         embed(sents, path_word2ind, path_word_vec, path_embed)
-    pad_seqs = align(sents, path_word2ind)
+    pad_seqs = align(sents)
     with open(path_sent, 'wb') as f:
         pk.dump(pad_seqs, f)
     with open(path_label, 'wb') as f:
@@ -59,9 +59,9 @@ def vectorize_triple(path_data, path_triple):
     sents = flat_read(path_data, 'text')
     pos_sents = flat_read(path_data, 'pos')
     neg_sents = flat_read(path_data, 'neg')
-    seqs = align(sents, path_word2ind)
-    pos_seqs = align(pos_sents, path_word2ind)
-    neg_seqs = align(neg_sents, path_word2ind)
+    seqs = align(sents)
+    pos_seqs = align(pos_sents)
+    neg_seqs = align(neg_sents)
     triples = (seqs, pos_seqs, neg_seqs)
     with open(path_triple, 'wb') as f:
         pk.dump(triples, f)
