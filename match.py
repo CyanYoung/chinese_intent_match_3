@@ -4,6 +4,8 @@ import re
 
 import numpy as np
 
+from collections import Counter
+
 from keras.preprocessing.sequence import pad_sequences
 
 from encode import load_model
@@ -53,7 +55,7 @@ models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'rnn': load_model('rnn', embed_mat, seq_len)}
 
 
-def predict(text, name):
+def predict(text, name, vote):
     text = re.sub(stop_word_re, '', text.strip())
     for word_type, word_re in word_type_re.items():
         text = re.sub(word_re, word_type, text)
@@ -66,8 +68,8 @@ def predict(text, name):
     encode_seq = model.predict([pad_seq])
     encode_mat = np.repeat(encode_seq, len(cache_sents), axis=0)
     dists = np.sqrt(np.sum(np.square(encode_mat - cache_sents), axis=1))
-    min_dists = sorted(dists)[:3]
-    min_inds = np.argsort(dists)[:3]
+    min_dists = sorted(dists)[:vote]
+    min_inds = np.argsort(dists)[:vote]
     min_preds = [labels[ind] for ind in min_inds]
     if __name__ == '__main__':
         min_texts = [texts[ind] for ind in min_inds]
@@ -76,12 +78,13 @@ def predict(text, name):
             formats.append('{} {:.3f} {}'.format(pred, prob, text))
         return ', '.join(formats)
     else:
-        return min_preds[0]
+        pairs = Counter(min_preds)
+        return pairs.most_common()[0][0]
 
 
 if __name__ == '__main__':
     while True:
         text = input('text: ')
-        print('dnn: %s' % predict(text, 'dnn'))
-        print('cnn: %s' % predict(text, 'cnn'))
-        print('rnn: %s' % predict(text, 'rnn'))
+        print('dnn: %s' % predict(text, 'dnn', vote=3))
+        print('cnn: %s' % predict(text, 'cnn', vote=3))
+        print('rnn: %s' % predict(text, 'rnn', vote=3))
