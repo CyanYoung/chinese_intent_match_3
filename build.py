@@ -37,11 +37,11 @@ paths = {'dnn': 'model/dnn.h5',
 
 
 def triple_loss(margin, delta):
-    return K.mean(K.maximum(0.0, margin - delta), axis=-1)
+    return K.mean(K.maximum(0.0, delta + margin), axis=-1)
 
 
 def triple_acc(margin, delta):
-    return K.mean(K.cast(K.greater_equal(delta, margin), K.floatx()), axis=-1)
+    return K.mean(K.cast(K.greater_equal(0.0, delta + margin), K.floatx()), axis=-1)
 
 
 def compile(name, embed_mat, seq_len):
