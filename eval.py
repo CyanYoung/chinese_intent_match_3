@@ -48,14 +48,12 @@ with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 
 path_test_triple = 'data/test_triple.csv'
-path_triple = 'feat/triple_train.pkl'
-path_flag = 'feat/flag_train.pkl'
-text1s = flat_read(path_test_triple, 'text1')
-text2s = flat_read(path_test_triple, 'text2')
+path_triple = 'feat/triple_test.pkl'
+anc_texts = flat_read(path_test_triple, 'anc')
+pos_texts = flat_read(path_test_triple, 'pos')
+neg_texts = flat_read(path_test_triple, 'neg')
 with open(path_triple, 'rb') as f:
     triples = pk.load(f)
-with open(path_flag, 'rb') as f:
-    flags = pk.load(f)
 
 funcs = {'dnn': dnn_build,
          'cnn': cnn_build,
@@ -70,16 +68,16 @@ models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'rnn': load_model('rnn', embed_mat, seq_len)}
 
 
-def test_triple(name, triples, flags, thre):
+def test_triple(name, triples, margin):
     model = map_item(name, models)
-    sent1s, sent2s = triples
-    dists = model.predict([sent1s, sent2s])
-    dists = np.reshape(dists, (1, -1))[0]
-    preds = dists > thre
-    print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(flags, preds)))
-    for flag, dist, text1, text2, pred in zip(flags, dists, text1s, text2s, preds):
-        if flag != pred:
-            print('{} {:.3f} {} | {}'.format(flag, dist, text1, text2))
+    anc_sents, pos_sents, neg_sents = triples
+    deltas = model.predict([anc_sents, pos_sents, neg_sents])
+    deltas = np.reshape(deltas, (1, -1))[0]
+    preds = deltas + margin < 0.0
+    print('\n%s %s %.2f\n' % (name, 'acc:', float(np.mean(preds))))
+    for delta, anc, pos, neg, pred in zip(deltas, anc_texts, pos_texts, neg_texts, preds):
+        if not pred:
+            print('{:.3f} {} | {} | {}'.format(delta, anc, pos, neg))
 
 
 def test(name, texts, labels, vote):
@@ -93,9 +91,9 @@ def test(name, texts, labels, vote):
 
 
 if __name__ == '__main__':
-    test_triple('dnn', triples, flags, thre=0.5)
-    test_triple('cnn', triples, flags, thre=0.5)
-    test_triple('rnn', triples, flags, thre=0.5)
+    test_triple('dnn', triples, margin=0.5)
+    test_triple('cnn', triples, margin=0.5)
+    test_triple('rnn', triples, margin=0.5)
     test('dnn', texts, labels, vote=3)
     test('cnn', texts, labels, vote=3)
     test('rnn', texts, labels, vote=3)
