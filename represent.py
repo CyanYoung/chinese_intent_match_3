@@ -56,13 +56,13 @@ def vectorize(path_data, path_sent, path_label, mode):
 
 
 def vectorize_triple(path_data, path_triple):
-    sents = flat_read(path_data, 'text')
+    anc_sents = flat_read(path_data, 'anc')
     pos_sents = flat_read(path_data, 'pos')
     neg_sents = flat_read(path_data, 'neg')
-    seqs = align(sents)
+    anc_seqs = align(anc_sents)
     pos_seqs = align(pos_sents)
     neg_seqs = align(neg_sents)
-    triples = (seqs, pos_seqs, neg_seqs)
+    triples = (anc_seqs, pos_seqs, neg_seqs)
     with open(path_triple, 'wb') as f:
         pk.dump(triples, f)
 

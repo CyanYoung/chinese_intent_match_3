@@ -20,7 +20,7 @@ syno_dict = load_pair(path_syno)
 
 
 def save_triple(path, triples):
-    head = 'text,pos,neg'
+    head = 'anc,pos,neg'
     with open(path, 'w') as f:
         f.write(head + '\n')
         for text, pos, neg in triples:

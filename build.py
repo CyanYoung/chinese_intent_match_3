@@ -41,7 +41,7 @@ def triple_loss(margin, delta):
 
 
 def triple_acc(margin, delta):
-    return K.mean(K.cast(K.greater_equal(0.0, delta + margin), K.floatx()), axis=-1)
+    return K.mean(K.cast(K.less_equal(delta + margin, 0.0), K.floatx()), axis=-1)
 
 
 def compile(name, embed_mat, seq_len):
@@ -64,12 +64,12 @@ def compile(name, embed_mat, seq_len):
 
 
 def fit(name, epoch, embed_mat, triples, margin):
-    sents, pos_sents, neg_sents = triples
-    margins = np.ones(len(sents)) * margin
-    seq_len = len(sents[0])
+    anc_sents, pos_sents, neg_sents = triples
+    margins = np.ones(len(anc_sents)) * margin
+    seq_len = len(anc_sents[0])
     model = compile(name, embed_mat, seq_len)
     check_point = ModelCheckpoint(map_item(name, paths), monitor='val_loss', verbose=True, save_best_only=True)
-    model.fit([sents, pos_sents, neg_sents], margins, batch_size=batch_size, epochs=epoch,
+    model.fit([anc_sents, pos_sents, neg_sents], margins, batch_size=batch_size, epochs=epoch,
               verbose=True, callbacks=[check_point], validation_split=0.2)
 
 
