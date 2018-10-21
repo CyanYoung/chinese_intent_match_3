@@ -47,13 +47,13 @@ with open(path_label, 'rb') as f:
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 
-path_test_pair = 'data/test_pair.csv'
-path_pair = 'feat/pair_train.pkl'
+path_test_triple = 'data/test_triple.csv'
+path_triple = 'feat/triple_train.pkl'
 path_flag = 'feat/flag_train.pkl'
-text1s = flat_read(path_test_pair, 'text1')
-text2s = flat_read(path_test_pair, 'text2')
-with open(path_pair, 'rb') as f:
-    pairs = pk.load(f)
+text1s = flat_read(path_test_triple, 'text1')
+text2s = flat_read(path_test_triple, 'text2')
+with open(path_triple, 'rb') as f:
+    triples = pk.load(f)
 with open(path_flag, 'rb') as f:
     flags = pk.load(f)
 
@@ -70,9 +70,9 @@ models = {'dnn': load_model('dnn', embed_mat, seq_len),
           'rnn': load_model('rnn', embed_mat, seq_len)}
 
 
-def test_pair(name, pairs, flags, thre):
+def test_triple(name, triples, flags, thre):
     model = map_item(name, models)
-    sent1s, sent2s = pairs
+    sent1s, sent2s = triples
     dists = model.predict([sent1s, sent2s])
     dists = np.reshape(dists, (1, -1))[0]
     preds = dists > thre
@@ -82,10 +82,10 @@ def test_pair(name, pairs, flags, thre):
             print('{} {:.3f} {} | {}'.format(flag, dist, text1, text2))
 
 
-def test(name, texts, labels):
+def test(name, texts, labels, vote):
     preds = list()
     for text in texts:
-        preds.append(predict(text, name))
+        preds.append(predict(text, name, vote))
     print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(labels, preds)))
     for text, label, pred in zip(texts, labels, preds):
         if label != pred:
@@ -93,9 +93,9 @@ def test(name, texts, labels):
 
 
 if __name__ == '__main__':
-    test_pair('dnn', pairs, flags, thre=0.5)
-    test_pair('cnn', pairs, flags, thre=0.5)
-    test_pair('rnn', pairs, flags, thre=0.5)
-    test('dnn', texts, labels)
-    test('cnn', texts, labels)
-    test('rnn', texts, labels)
+    test_triple('dnn', triples, flags, thre=0.5)
+    test_triple('cnn', triples, flags, thre=0.5)
+    test_triple('rnn', triples, flags, thre=0.5)
+    test('dnn', texts, labels, vote=3)
+    test('cnn', texts, labels, vote=3)
+    test('rnn', texts, labels, vote=3)

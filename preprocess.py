@@ -35,12 +35,6 @@ def extend(triples, path_extra_triple):
     return extra_triples + triples
 
 
-def insert(triples, text, pos_text, neg_texts, neg_fold):
-    sub_texts = sample(neg_texts, neg_fold)
-    for neg_text in sub_texts:
-        triples.append((text, pos_text, neg_text))
-
-
 def make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_triple):
     labels = list()
     label_texts = dict()
@@ -53,10 +47,7 @@ def make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_t
             for line in f:
                 label_texts[label].append(line.strip())
     neg_fold = 2
-    res_fold = 1
     triples = list()
-    res_texts = label_texts.pop('其它')
-    labels.remove('其它')
     for i in range(len(labels)):
         texts = label_texts[labels[i]]
         neg_texts = list()
@@ -65,8 +56,9 @@ def make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_t
                 neg_texts.extend(label_texts[labels[j]])
         for j in range(len(texts) - 1):
             for k in range(j + 1, len(texts)):
-                insert(triples, texts[j], texts[k], neg_texts, neg_fold)
-                insert(triples, texts[j], texts[k], res_texts, res_fold)
+                sub_texts = sample(neg_texts, neg_fold)
+                for neg_text in sub_texts:
+                    triples.append((texts[j], texts[k], neg_text))
     shuffle(triples)
     bound = int(len(triples) * 0.9)
     train_triples = extend(triples[:bound], path_extra_triple)
