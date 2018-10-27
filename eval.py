@@ -16,8 +16,7 @@ from util import flat_read, map_item
 
 def define_model(name, embed_mat, seq_len):
     vocab_num, embed_len = embed_mat.shape
-    embed = Embedding(input_dim=vocab_num, output_dim=embed_len,
-                      weights=[embed_mat], input_length=seq_len, trainable=True)
+    embed = Embedding(input_dim=vocab_num, output_dim=embed_len, input_length=seq_len, name='embed')
     input1 = Input(shape=(seq_len,))
     input2 = Input(shape=(seq_len,))
     input3 = Input(shape=(seq_len,))
@@ -26,8 +25,7 @@ def define_model(name, embed_mat, seq_len):
     embed_input3 = embed(input3)
     func = map_item(name, funcs)
     output = func(embed_input1, embed_input2, embed_input3)
-    model = Model([input1, input2, input3], output)
-    return model
+    return Model([input1, input2, input3], output)
 
 
 def load_model(name, embed_mat, seq_len):
