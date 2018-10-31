@@ -1,6 +1,6 @@
 from keras.layers import Dense, SeparableConv1D, LSTM
 from keras.layers import GlobalMaxPooling1D, Masking
-from keras.layers import Lambda, Subtract, Concatenate, Reshape
+from keras.layers import Lambda, Concatenate, Subtract, Reshape
 
 import keras.backend as K
 
