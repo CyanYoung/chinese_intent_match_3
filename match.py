@@ -8,7 +8,7 @@ from collections import Counter
 
 from keras.preprocessing.sequence import pad_sequences
 
-from encode import load_model
+from encode import load_encode
 
 from util import load_word_re, load_type_re, load_pair, word_replace, map_item
 
@@ -48,9 +48,9 @@ caches = {'dnn': load_cache(map_item('dnn', paths)),
           'cnn': load_cache(map_item('dnn', paths)),
           'rnn': load_cache(map_item('dnn', paths))}
 
-models = {'dnn': load_model('dnn', embed_mat, seq_len),
-          'cnn': load_model('cnn', embed_mat, seq_len),
-          'rnn': load_model('rnn', embed_mat, seq_len)}
+models = {'dnn_encode': load_encode('dnn', embed_mat, seq_len),
+          'cnn_encode': load_encode('cnn', embed_mat, seq_len),
+          'rnn_encode': load_encode('rnn', embed_mat, seq_len)}
 
 
 def predict(text, name, vote):
@@ -62,8 +62,8 @@ def predict(text, name, vote):
     core_sents = map_item(name, caches)
     seq = word2ind.texts_to_sequences([text])[0]
     pad_seq = pad_sequences([seq], maxlen=seq_len)
-    model = map_item(name, models)
-    encode_seq = model.predict([pad_seq])
+    encode = map_item(name + '_encode', models)
+    encode_seq = encode.predict([pad_seq])
     encode_mat = np.repeat(encode_seq, len(core_sents), axis=0)
     dists = np.sum(np.square(encode_mat - core_sents), axis=-1)
     min_dists = sorted(dists)[:vote]

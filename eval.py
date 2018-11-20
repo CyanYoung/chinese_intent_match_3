@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from keras.models import Model
 from keras.layers import Input, Embedding
 
-from nn_arch import dnn_build, cnn_build, rnn_build
+from nn_arch import dnn, cnn, rnn
 
 from match import predict
 
@@ -53,9 +53,9 @@ neg_texts = flat_read(path_test_triple, 'neg')
 with open(path_triple, 'rb') as f:
     triples = pk.load(f)
 
-funcs = {'dnn': dnn_build,
-         'cnn': cnn_build,
-         'rnn': rnn_build}
+funcs = {'dnn': dnn,
+         'cnn': cnn,
+         'rnn': rnn}
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',

@@ -10,7 +10,7 @@ from keras.utils import plot_model
 
 import keras.backend as K
 
-from nn_arch import dnn_build, cnn_build, rnn_build
+from nn_arch import dnn, cnn, rnn
 
 from util import map_item
 
@@ -24,16 +24,16 @@ with open(path_embed, 'rb') as f:
 with open(path_triple, 'rb') as f:
     triples = pk.load(f)
 
-funcs = {'dnn': dnn_build,
-         'cnn': cnn_build,
-         'rnn': rnn_build}
+funcs = {'dnn': dnn,
+         'cnn': cnn,
+         'rnn': rnn}
 
 paths = {'dnn': 'model/dnn.h5',
          'cnn': 'model/cnn.h5',
          'rnn': 'model/rnn.h5',
-         'dnn_plot': 'model/plot/dnn_build.png',
-         'cnn_plot': 'model/plot/cnn_build.png',
-         'rnn_plot': 'model/plot/rnn_build.png'}
+         'dnn_plot': 'model/plot/dnn.png',
+         'cnn_plot': 'model/plot/cnn.png',
+         'rnn_plot': 'model/plot/rnn.png'}
 
 
 def triple_loss(margin, delta):
