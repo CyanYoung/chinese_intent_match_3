@@ -1,6 +1,5 @@
 from keras.layers import Dense, SeparableConv1D, LSTM
-from keras.layers import GlobalMaxPooling1D, Masking
-from keras.layers import Lambda, Concatenate, Subtract, Reshape
+from keras.layers import GlobalMaxPooling1D, Masking, Lambda, Dot, Subtract, Concatenate
 
 import keras.backend as K
 
@@ -9,7 +8,6 @@ def dnn(embed_input1, embed_input2, embed_input3):
     mean = Lambda(lambda a: K.mean(a, axis=1), name='mean')
     da1 = Dense(200, activation='relu', name='encode1')
     da2 = Dense(200, activation='relu', name='encode2')
-    norm = Lambda(lambda a: K.sum(K.square(a), axis=-1))
     x = mean(embed_input1)
     x = da1(x)
     x = da2(x)
@@ -19,10 +17,9 @@ def dnn(embed_input1, embed_input2, embed_input3):
     z = mean(embed_input3)
     z = da1(z)
     z = da2(z)
-    pos = norm(Subtract()([x, y]))
-    neg = norm(Subtract()([x, z]))
-    delta = Subtract()([pos, neg])
-    return Reshape((1,))(delta)
+    pos = Dot(1, normalize=True)([x, y])
+    neg = Dot(1, normalize=True)([x, z])
+    return Subtract()([pos, neg])
 
 
 def dnn_encode(embed_input):
@@ -41,7 +38,6 @@ def cnn(embed_input1, embed_input2, embed_input3):
     mp = GlobalMaxPooling1D()
     concat = Concatenate()
     da = Dense(200, activation='relu', name='encode')
-    norm = Lambda(lambda a: K.sum(K.square(a), axis=-1))
     x1 = ca1(embed_input1)
     x1 = mp(x1)
     x2 = ca2(embed_input1)
@@ -66,10 +62,9 @@ def cnn(embed_input1, embed_input2, embed_input3):
     z3 = mp(z3)
     z = concat([z1, z2, z3])
     z = da(z)
-    pos = norm(Subtract()([x, y]))
-    neg = norm(Subtract()([x, z]))
-    delta = Subtract()([pos, neg])
-    return Reshape((1,))(delta)
+    pos = Dot(1, normalize=True)([x, y])
+    neg = Dot(1, normalize=True)([x, z])
+    return Subtract()([pos, neg])
 
 
 def cnn_encode(embed_input):
@@ -90,21 +85,25 @@ def cnn_encode(embed_input):
 
 def rnn(embed_input1, embed_input2, embed_input3):
     mask = Masking()
-    ra = LSTM(200, activation='tanh', name='encode')
-    norm = Lambda(lambda a: K.sum(K.square(a), axis=-1))
+    ra = LSTM(200, activation='tanh', name='encode1')
+    da = Dense(200, activation='relu', name='encode2')
     x = mask(embed_input1)
     x = ra(x)
+    x = da(x)
     y = mask(embed_input2)
     y = ra(y)
+    y = da(y)
     z = mask(embed_input3)
     z = ra(z)
-    pos = norm(Subtract()([x, y]))
-    neg = norm(Subtract()([x, z]))
-    delta = Subtract()([pos, neg])
-    return Reshape((1,))(delta)
+    z = da(z)
+    pos = Dot(1, normalize=True)([x, y])
+    neg = Dot(1, normalize=True)([x, z])
+    return Subtract()([pos, neg])
 
 
 def rnn_encode(embed_input):
-    ra = LSTM(200, activation='tanh', name='encode')
+    ra = LSTM(200, activation='tanh', name='encode1')
+    da = Dense(200, activation='relu', name='encode2')
     x = Masking()(embed_input)
-    return ra(x)
+    x = ra(x)
+    return da(x)

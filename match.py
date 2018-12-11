@@ -3,6 +3,7 @@ import pickle as pk
 import re
 
 import numpy as np
+from scipy.spatial.distance import cosine as cos_dist
 
 from collections import Counter
 
@@ -64,18 +65,20 @@ def predict(text, name, vote):
     pad_seq = pad_sequences([seq], maxlen=seq_len)
     encode = map_item(name + '_encode', models)
     encode_seq = encode.predict([pad_seq])
-    encode_mat = np.repeat(encode_seq, len(core_sents), axis=0)
-    dists = np.sum(np.square(encode_mat - core_sents), axis=-1)
-    min_dists = sorted(dists)[:vote]
-    min_inds = np.argsort(dists)[:vote]
-    min_preds = [core_labels[ind] for ind in min_inds]
+    sims = list()
+    for core_sent in core_sents:
+        sims.append(1 - cos_dist(encode_seq, core_sent))
+    sims = np.array(sims)
+    max_sims = sorted(sims, reverse=True)[:vote]
+    max_inds = np.argsort(-sims)[:vote]
+    max_preds = [core_labels[ind] for ind in max_inds]
     if __name__ == '__main__':
         formats = list()
-        for pred, prob in zip(min_preds, min_dists):
-            formats.append('{} {:.3f}'.format(pred, prob))
+        for pred, sim in zip(max_preds, max_sims):
+            formats.append('{} {:.3f}'.format(pred, sim))
         return ', '.join(formats)
     else:
-        pairs = Counter(min_preds)
+        pairs = Counter(max_preds)
         return pairs.most_common()[0][0]
 
 

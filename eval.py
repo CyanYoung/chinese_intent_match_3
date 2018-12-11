@@ -71,7 +71,7 @@ def test_triple(name, triples, margin):
     anc_sents, pos_sents, neg_sents = triples
     deltas = model.predict([anc_sents, pos_sents, neg_sents])
     deltas = np.reshape(deltas, (1, -1))[0]
-    preds = deltas + margin < 0.0
+    preds = deltas > margin
     print('\n%s %s %.2f\n' % (name, 'acc:', float(np.mean(preds))))
     for delta, anc, pos, neg, pred in zip(deltas, anc_texts, pos_texts, neg_texts, preds):
         if not pred:
@@ -89,9 +89,9 @@ def test(name, texts, labels, vote):
 
 
 if __name__ == '__main__':
-    test_triple('dnn', triples, margin=0.5)
-    test_triple('cnn', triples, margin=0.5)
-    test_triple('rnn', triples, margin=0.5)
+    test_triple('dnn', triples, margin=0.2)
+    test_triple('cnn', triples, margin=0.2)
+    test_triple('rnn', triples, margin=0.2)
     test('dnn', texts, labels, vote=5)
     test('cnn', texts, labels, vote=5)
     test('rnn', texts, labels, vote=5)
