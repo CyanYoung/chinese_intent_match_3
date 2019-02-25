@@ -37,11 +37,11 @@ paths = {'dnn': 'model/dnn.h5',
 
 
 def triple_loss(margin, delta):
-    return K.mean(K.maximum(0.0, margin - delta), axis=-1)
+    return K.mean(K.maximum(0.0, margin + delta), axis=-1)
 
 
 def triple_acc(margin, delta):
-    return K.mean(K.cast(K.less_equal(margin - delta, 0.0), K.floatx()), axis=-1)
+    return K.mean(K.cast(K.less_equal(margin + delta, 0.0), K.floatx()), axis=-1)
 
 
 def compile(name, embed_mat, seq_len):
@@ -74,6 +74,6 @@ def fit(name, epoch, embed_mat, triples, margin):
 
 
 if __name__ == '__main__':
-    fit('dnn', 10, embed_mat, triples, margin=0.2)
-    fit('cnn', 10, embed_mat, triples, margin=0.2)
-    fit('rnn', 10, embed_mat, triples, margin=0.2)
+    fit('dnn', 10, embed_mat, triples, margin=1)
+    fit('cnn', 10, embed_mat, triples, margin=1)
+    fit('rnn', 10, embed_mat, triples, margin=1)
