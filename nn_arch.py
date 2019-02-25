@@ -17,8 +17,8 @@ def dnn(embed_input1, embed_input2, embed_input3):
     z = mean(embed_input3)
     z = da1(z)
     z = da2(z)
-    pos = Dot(1, normalize=True)([x, y])
-    neg = Dot(1, normalize=True)([x, z])
+    pos = Dot(1)([x, y])
+    neg = Dot(1)([x, z])
     return Subtract()([pos, neg])
 
 
@@ -36,7 +36,6 @@ def cnn(embed_input1, embed_input2, embed_input3):
     ca2 = SeparableConv1D(filters=64, kernel_size=2, padding='same', activation='relu', name='conv2')
     ca3 = SeparableConv1D(filters=64, kernel_size=3, padding='same', activation='relu', name='conv3')
     mp = GlobalMaxPooling1D()
-    concat = Concatenate()
     da = Dense(200, activation='relu', name='encode')
     x1 = ca1(embed_input1)
     x1 = mp(x1)
@@ -44,7 +43,7 @@ def cnn(embed_input1, embed_input2, embed_input3):
     x2 = mp(x2)
     x3 = ca3(embed_input1)
     x3 = mp(x3)
-    x = concat([x1, x2, x3])
+    x = Concatenate()([x1, x2, x3])
     x = da(x)
     y1 = ca1(embed_input2)
     y1 = mp(y1)
@@ -52,7 +51,7 @@ def cnn(embed_input1, embed_input2, embed_input3):
     y2 = mp(y2)
     y3 = ca3(embed_input2)
     y3 = mp(y3)
-    y = concat([y1, y2, y3])
+    y = Concatenate()([y1, y2, y3])
     y = da(y)
     z1 = ca1(embed_input3)
     z1 = mp(z1)
@@ -60,10 +59,10 @@ def cnn(embed_input1, embed_input2, embed_input3):
     z2 = mp(z2)
     z3 = ca3(embed_input3)
     z3 = mp(z3)
-    z = concat([z1, z2, z3])
+    z = Concatenate()([z1, z2, z3])
     z = da(z)
-    pos = Dot(1, normalize=True)([x, y])
-    neg = Dot(1, normalize=True)([x, z])
+    pos = Dot(1)([x, y])
+    neg = Dot(1)([x, z])
     return Subtract()([pos, neg])
 
 
@@ -84,20 +83,19 @@ def cnn_encode(embed_input):
 
 
 def rnn(embed_input1, embed_input2, embed_input3):
-    mask = Masking()
     ra = LSTM(200, activation='tanh', name='encode1')
     da = Dense(200, activation='relu', name='encode2')
-    x = mask(embed_input1)
+    x = Masking()(embed_input1)
     x = ra(x)
     x = da(x)
-    y = mask(embed_input2)
+    y = Masking()(embed_input2)
     y = ra(y)
     y = da(y)
-    z = mask(embed_input3)
+    z = Masking()(embed_input3)
     z = ra(z)
     z = da(z)
-    pos = Dot(1, normalize=True)([x, y])
-    neg = Dot(1, normalize=True)([x, z])
+    pos = Dot(1)([x, y])
+    neg = Dot(1)([x, z])
     return Subtract()([pos, neg])
 
 
