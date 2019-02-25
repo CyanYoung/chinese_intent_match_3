@@ -59,9 +59,7 @@ def vectorize_triple(path_data, path_triple):
     anc_sents = flat_read(path_data, 'anc')
     pos_sents = flat_read(path_data, 'pos')
     neg_sents = flat_read(path_data, 'neg')
-    anc_seqs = align(anc_sents)
-    pos_seqs = align(pos_sents)
-    neg_seqs = align(neg_sents)
+    anc_seqs, pos_seqs, neg_seqs = align(anc_sents), align(pos_sents), align(neg_sents)
     triples = (anc_seqs, pos_seqs, neg_seqs)
     with open(path_triple, 'wb') as f:
         pk.dump(triples, f)
