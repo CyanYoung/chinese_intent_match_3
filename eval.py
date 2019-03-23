@@ -2,7 +2,7 @@ import pickle as pk
 
 import numpy as np
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 
 from keras.models import Model
 from keras.layers import Input, Embedding
@@ -72,7 +72,9 @@ def test_triple(name, triples, margin):
     deltas = model.predict([anc_sents, pos_sents, neg_sents])
     deltas = np.reshape(deltas, (1, -1))[0]
     preds = deltas > margin
-    print('\n%s %s %.2f\n' % (name, 'acc:', float(np.mean(preds))))
+    flags = np.ones(len(anc_sents))
+    f1 = f1_score(flags, preds)
+    print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(flags, preds)))
     for delta, anc, pos, neg, pred in zip(deltas, anc_texts, pos_texts, neg_texts, preds):
         if not pred:
             print('{:.3f} {} | {} | {}'.format(delta, anc, pos, neg))
@@ -82,7 +84,8 @@ def test(name, texts, labels, vote):
     preds = list()
     for text in texts:
         preds.append(predict(text, name, vote))
-    print('\n%s %s %.2f\n' % (name, 'acc:', accuracy_score(labels, preds)))
+    f1 = f1_score(labels, preds, average='weighted')
+    print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(labels, preds)))
     for text, label, pred in zip(texts, labels, preds):
         if label != pred:
             print('{}: {} -> {}'.format(text, label, pred))
