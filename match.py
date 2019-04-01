@@ -3,7 +3,6 @@ import pickle as pk
 import re
 
 import numpy as np
-from scipy.spatial.distance import cosine as cos_dist
 
 from collections import Counter
 
@@ -67,7 +66,7 @@ def predict(text, name, vote):
     encode_seq = encode.predict([pad_seq])
     sims = list()
     for core_sent in core_sents:
-        sims.append(1 - cos_dist(encode_seq, core_sent))
+        sims.append(np.dot(encode_seq, core_sent)[0])
     sims = np.array(sims)
     max_sims = sorted(sims, reverse=True)[:vote]
     max_inds = np.argsort(-sims)[:vote]
