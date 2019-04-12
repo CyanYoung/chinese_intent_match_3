@@ -27,7 +27,7 @@ def save_triple(path, triples):
             f.write(text + ',' + pos + ',' + neg + '\n')
 
 
-def extend(triples, path_extra_triple):
+def expand(triples, path_extra_triple):
     extra_triples = list()
     for text, pos, neg in pd.read_csv(path_extra_triple).values:
         extra_triples.append((text, pos, neg))
@@ -61,7 +61,7 @@ def make_triple(path_univ_dir, path_train_triple, path_test_triple, path_extra_t
                     triples.append((texts[j], texts[k], neg_text))
     shuffle(triples)
     bound = int(len(triples) * 0.9)
-    train_triples = extend(triples[:bound], path_extra_triple)
+    train_triples = expand(triples[:bound], path_extra_triple)
     save_triple(path_train_triple, train_triples)
     save_triple(path_test_triple, triples[bound:])
 
