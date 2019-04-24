@@ -70,7 +70,7 @@ def test_triple(name, triples, margin):
     model = map_item(name, models)
     anc_sents, pos_sents, neg_sents = triples
     deltas = model.predict([anc_sents, pos_sents, neg_sents])
-    deltas = np.reshape(deltas, (1, -1))[0]
+    deltas = np.squeeze(deltas, axis=-1)
     preds = deltas + margin < 0
     flags = np.ones(len(anc_sents))
     f1 = f1_score(flags, preds)
