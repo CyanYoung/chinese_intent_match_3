@@ -33,8 +33,8 @@ paths = {'dnn': 'cache/dnn.pkl',
          'rnn': 'cache/rnn.pkl'}
 
 caches = {'dnn': load_cache(map_item('dnn', paths)),
-          'cnn': load_cache(map_item('dnn', paths)),
-          'rnn': load_cache(map_item('dnn', paths))}
+          'cnn': load_cache(map_item('cnn', paths)),
+          'rnn': load_cache(map_item('rnn', paths))}
 
 models = {'dnn_encode': load_encode('dnn', embed_mat, seq_len),
           'cnn_encode': load_encode('cnn', embed_mat, seq_len),

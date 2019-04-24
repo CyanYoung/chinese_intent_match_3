@@ -71,7 +71,7 @@ def test_triple(name, triples, margin):
     anc_sents, pos_sents, neg_sents = triples
     deltas = model.predict([anc_sents, pos_sents, neg_sents])
     deltas = np.reshape(deltas, (1, -1))[0]
-    preds = deltas > margin
+    preds = deltas + margin < 0
     flags = np.ones(len(anc_sents))
     f1 = f1_score(flags, preds)
     print('\n%s f1: %.2f - acc: %.2f\n' % (name, f1, accuracy_score(flags, preds)))

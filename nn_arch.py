@@ -86,15 +86,19 @@ def cnn_encode(embed_input):
 
 def rnn(embed_input1, embed_input2, embed_input3):
     ra = LSTM(200, activation='tanh', return_sequences=True)
-    ba = Bidirectional(ra, name='encode')
+    ba = Bidirectional(ra, name='encode1')
     mp = GlobalMaxPooling1D()
+    da = Dense(200, activation='relu', name='encode2')
     norm = Lambda(lambda a: K.sum(K.square(a), axis=-1, keepdims=True))
     x = ba(embed_input1)
     x = mp(x)
+    x = da(x)
     y = ba(embed_input2)
     y = mp(y)
+    y = da(y)
     z = ba(embed_input3)
     z = mp(z)
+    z = da(z)
     pos = norm(Subtract()([x, y]))
     neg = norm(Subtract()([x, z]))
     return Subtract()([pos, neg])
@@ -102,7 +106,9 @@ def rnn(embed_input1, embed_input2, embed_input3):
 
 def rnn_encode(embed_input):
     ra = LSTM(200, activation='tanh', return_sequences=True)
-    ba = Bidirectional(ra, name='encode')
+    ba = Bidirectional(ra, name='encode1')
     mp = GlobalMaxPooling1D()
+    da = Dense(200, activation='relu', name='encode2')
     x = ba(embed_input)
-    return mp(x)
+    x = mp(x)
+    return da(x)
