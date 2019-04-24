@@ -48,20 +48,20 @@ def predict(text, name, vote):
     pad_seq = pad_sequences([seq], maxlen=seq_len)
     encode = map_item(name + '_encode', models)
     encode_seq = encode.predict([pad_seq])
-    sims = list()
+    dists = list()
     for core_sent in core_sents:
-        sims.append(np.dot(encode_seq, core_sent)[0])
-    sims = np.array(sims)
-    max_sims = sorted(sims, reverse=True)[:vote]
-    max_inds = np.argsort(-sims)[:vote]
-    max_preds = [core_labels[ind] for ind in max_inds]
+        dists.append(np.sum(np.square(encode_seq - core_sent)[0]))
+    dists = np.array(dists)
+    min_dists = sorted(dists)[:vote]
+    min_inds = np.argsort(dists)[:vote]
+    min_preds = [core_labels[ind] for ind in min_inds]
     if __name__ == '__main__':
         formats = list()
-        for pred, sim in zip(max_preds, max_sims):
-            formats.append('{} {:.3f}'.format(pred, sim))
+        for pred, dist in zip(min_preds, min_dists):
+            formats.append('{} {:.3f}'.format(pred, dist))
         return ', '.join(formats)
     else:
-        pairs = Counter(max_preds)
+        pairs = Counter(min_preds)
         return pairs.most_common()[0][0]
 
 
