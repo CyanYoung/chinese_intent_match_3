@@ -20,7 +20,7 @@ vectorize() 和 vectorize_pair() 分别进行向量化，不处理 label、flag
 
 #### 4.build
 
-定义 triple_loss、希望负例与正例的间距之差大于 margin
+定义 triple_loss、希望负例与正例的欧式距离之差大于 margin
 
 train 80% / dev 20% 划分，分别通过 dnn、cnn、rnn 构建匹配模型
 
@@ -32,9 +32,7 @@ train 80% / dev 20% 划分，分别通过 dnn、cnn、rnn 构建匹配模型
 
 #### 6.match
 
-使用余弦距离、省去定义模型的匹配部分，predict() 读取缓存数据
-
-去除停用词，统一替换地区、时间等特殊词，输出相似概率前 5 的语句
+读取缓存数据，predict() 输入单句、清洗后进行预测，输出相似概率前 5 的语句
 
 #### 7.eval
 
