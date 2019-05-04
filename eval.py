@@ -103,9 +103,9 @@ def test(name, texts, labels, vote):
 
 
 if __name__ == '__main__':
-    # test_triple('dnn', triples, margin=1)
-    # test_triple('cnn', triples, margin=1)
-    # test_triple('rnn', triples, margin=1)
+    test_triple('dnn', triples, margin=1)
+    test_triple('cnn', triples, margin=1)
+    test_triple('rnn', triples, margin=1)
     test('dnn', texts, labels, vote=5)
     test('cnn', texts, labels, vote=5)
     test('rnn', texts, labels, vote=5)
