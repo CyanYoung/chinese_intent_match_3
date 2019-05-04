@@ -13,6 +13,13 @@ from encode import load_encode
 from util import map_item
 
 
+def ind2label(label_inds):
+    ind_labels = dict()
+    for label, ind in label_inds.items():
+        ind_labels[ind] = label
+    return ind_labels
+
+
 def load_cache(path_cache):
     with open(path_cache, 'rb') as f:
         core_sents = pk.load(f)
@@ -23,10 +30,15 @@ seq_len = 30
 
 path_embed = 'feat/embed.pkl'
 path_word2ind = 'model/word2ind.pkl'
+path_label_ind = 'feat/label_ind.pkl'
 with open(path_embed, 'rb') as f:
     embed_mat = pk.load(f)
 with open(path_word2ind, 'rb') as f:
     word2ind = pk.load(f)
+with open(path_label_ind, 'rb') as f:
+    label_inds = pk.load(f)
+
+ind_labels = ind2label(label_inds)
 
 paths = {'dnn': 'cache/dnn.pkl',
          'cnn': 'cache/cnn.pkl',
@@ -58,7 +70,7 @@ def predict(text, name, vote):
     if __name__ == '__main__':
         formats = list()
         for pred, dist in zip(min_preds, min_dists):
-            formats.append('{} {:.3f}'.format(pred, dist))
+            formats.append('{} {:.3f}'.format(ind_labels[pred], dist))
         return ', '.join(formats)
     else:
         pairs = Counter(min_preds)
